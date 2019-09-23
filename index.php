@@ -10,7 +10,7 @@ use Medoo\Medoo;
 
 
 // token1和token2请到config.php里面设置，用来鉴权。
-//所有的api都必须仔参数中写token1与token2。否则送403一个。
+//所有的api都必须在参数中写token1与token2。否则送403一个。
 $token1 = Flight::request()->data->token1;
 $token2 = Flight::request()->data->token2;
 
