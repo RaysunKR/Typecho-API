@@ -80,7 +80,7 @@ function tagsUpdate($cid, $tags)
             ]);
             $mid = $db->id();
         } else {
-            $mid = $info[0];
+            $mid = $info[0]['mid'];
         }
 
         $db->insert("relationships", [
@@ -201,6 +201,7 @@ Flight::route("POST /delcontents",function(){
 
     $db->delete("contents",["cid[=]"=>$cid]);
     $db->delete("metas",["cid[=]"=>$cid]);
+    $db->delete("comments",["cid[=]"=>$cid]);
     metaNumRefresh();
     echo jsonEncode(["info"=>"OK"]);
 });
