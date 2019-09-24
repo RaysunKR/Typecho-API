@@ -27,6 +27,20 @@ $db = new Medoo([
     'password' => $config['password'],
     'prefix' => $config['prefix']
 ]);
+//检查填入的信息是否正确
+function check($category)
+{
+    global $db;
+    $categoryInfo = $db->select("metas", "mid", [
+        "name[=]" => $category,
+        "type[=]" => "category"
+    ]);
+    if (empty($categoryInfo)) {
+        Flight::halt(500, "分类不存在。");
+    }
+}
+
+
 
 //每次更新分类信息的函数，单纯用代码的话不用管。
 function categoryUpdate($cid, $category)
@@ -104,7 +118,7 @@ function metaNumRefresh()
     global $db;
     $metasInfo = $db->select("metas", ['mid']);
     foreach ($metasInfo as $line) {
-        $relationshipsInfo = $db->select("relationships", ['cid'],["mid[=]"=>$line]);
+        $relationshipsInfo = $db->select("relationships", ['cid'], ["mid[=]" => $line]);
         $length = count($relationshipsInfo);
         $db->update("metas", ["count" => $length], ["mid[=]" => $line]);
     }
@@ -184,6 +198,8 @@ Flight::route("POST /addcontent", function () {
     $category = Flight::request()->data->category;
     $tags = Flight::request()->data->tags;
 
+    check($category);
+
     $db->insert("contents", [
         "title" => $title,
         "created" => time(),
@@ -217,7 +233,7 @@ Flight::route("POST /addcontent", function () {
     tagsUpdate($cid, $tags);
     metaNumRefresh();
 
-    echo jsonEncode(["info"=>"OK"]);
+    echo jsonEncode(["info" => "OK"]);
 });
 
 //删除文章的API
@@ -225,15 +241,15 @@ Flight::route("POST /addcontent", function () {
 //body形式为：form-data
 //（省略了token1和token2）
 //cid 要删除文章的cid
-Flight::route("POST /delcontents",function(){
+Flight::route("POST /delcontents", function () {
     global $db;
-    $cid=Flight::request()->data->cid;
+    $cid = Flight::request()->data->cid;
 
-    $db->delete("contents",["cid[=]"=>$cid]);
-    $db->delete("metas",["cid[=]"=>$cid]);
-    $db->delete("comments",["cid[=]"=>$cid]);
+    $db->delete("contents", ["cid[=]" => $cid]);
+    $db->delete("metas", ["cid[=]" => $cid]);
+    $db->delete("comments", ["cid[=]" => $cid]);
     metaNumRefresh();
-    echo jsonEncode(["info"=>"OK"]);
+    echo jsonEncode(["info" => "OK"]);
 });
 
 
